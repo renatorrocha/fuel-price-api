@@ -22,7 +22,7 @@ export interface FuelPrice {
 }
 
 @Injectable()
-export class UploadService {
+export class FuelService {
   async processCSV(filePath: string): Promise<FuelPrice[]> {
     const csvData: FuelPrice[] = [];
 
