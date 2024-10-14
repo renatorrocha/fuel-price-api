@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { parse } from 'fast-csv';
 import { createReadStream } from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 
 export interface FuelPrice {
   streetName: string;
@@ -23,6 +25,8 @@ export interface FuelPrice {
 
 @Injectable()
 export class FuelService {
+  private jsonData: FuelPrice[] = undefined;
+
   async processCSV(filePath: string): Promise<FuelPrice[]> {
     const csvData: FuelPrice[] = [];
 
@@ -52,5 +56,24 @@ export class FuelService {
         .on('end', () => resolve(csvData))
         .on('error', (err) => reject(err));
     });
+  }
+
+  loadData() {
+    const jsonFilePath = path.resolve(
+      __dirname,
+      '../../uploads',
+      'fuel-prices.json',
+    );
+
+    if (!fs.existsSync(jsonFilePath)) {
+      return;
+    }
+
+    const jsonData = fs.readFileSync(jsonFilePath, 'utf-8');
+    this.jsonData = JSON.parse(jsonData);
+  }
+
+  getJsonData() {
+    return this.jsonData;
   }
 }

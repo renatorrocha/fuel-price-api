@@ -15,7 +15,10 @@ import * as fs from 'fs';
 
 @Controller('fuel')
 export class FuelController {
-  constructor(private readonly fuelService: FuelService) {}
+  private jsonData: FuelService[] = undefined;
+  constructor(private readonly fuelService: FuelService) {
+    this.fuelService.loadData();
+  }
 
   @Post('upload-csv')
   @UseInterceptors(
@@ -59,6 +62,7 @@ export class FuelController {
       );
 
       fs.unlinkSync(filePath);
+      this.fuelService.loadData();
 
       return res.status(HttpStatus.OK).json({
         message: 'Arquivo Enviado com sucesso !',
@@ -74,19 +78,13 @@ export class FuelController {
 
   @Get('prices')
   getFuelPrices(@Res() res: Response) {
-    const jsonFilePath = path.resolve(
-      __dirname,
-      '../../uploads',
-      'fuel-prices.json',
-    );
+    const jsonData = this.fuelService.getJsonData();
 
-    if (!fs.existsSync(jsonFilePath)) {
+    if (!jsonData) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: 'Não foi achado nenhum registro. Faca um upload primeiro.',
+        message: 'Não foi achado nenhum registro. Faça um upload primeiro.',
       });
     }
-
-    const jsonData = fs.readFileSync(jsonFilePath, 'utf-8');
-    return res.status(HttpStatus.OK).json(JSON.parse(jsonData));
+    return res.status(HttpStatus.OK).json(this.fuelService.getJsonData());
   }
 }
