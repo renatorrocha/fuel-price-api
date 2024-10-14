@@ -25,8 +25,9 @@ export interface FuelPrice {
 
 @Injectable()
 export class FuelService {
-  private jsonData: FuelPrice[] = undefined;
+  private jsonData: FuelPrice[] = [];
 
+  // Process CSV to JSON
   async processCSV(filePath: string): Promise<FuelPrice[]> {
     const csvData: FuelPrice[] = [];
 
@@ -37,14 +38,14 @@ export class FuelService {
           csvData.push({
             region: row['Região'],
             state: row['Estado'],
-            city: row['Município'],
+            city: row['Municipio'],
             retailer: row['Revenda'],
             cnpj: row['CNPJ'],
             streetName: row['Nome da Rua'],
             streetNumber: row['Número da Rua'],
             complement: row['Complemento'],
             neighborhood: row['Bairro'],
-            postalCode: row['CEP'],
+            postalCode: row['Cep'],
             product: row['Produto'],
             collectionDate: row['Data da Coleta'],
             salePrice: row['Valor de Venda'],
@@ -58,22 +59,46 @@ export class FuelService {
     });
   }
 
+  // Load Json Data
   loadData() {
     const jsonFilePath = path.resolve(
       __dirname,
       '../../uploads',
       'fuel-prices.json',
     );
+    if (fs.existsSync(jsonFilePath)) {
+      const data = fs.readFileSync(jsonFilePath, 'utf-8');
+      const parsedData = JSON.parse(data);
 
-    if (!fs.existsSync(jsonFilePath)) {
-      return;
+      if (Array.isArray(parsedData.csvData)) {
+        this.jsonData = parsedData.csvData;
+      } else {
+        this.jsonData = [];
+      }
+    } else {
+      this.jsonData = [];
     }
-
-    const jsonData = fs.readFileSync(jsonFilePath, 'utf-8');
-    this.jsonData = JSON.parse(jsonData);
   }
 
-  getJsonData() {
+  // Return Json Data
+  getJsonData(): FuelPrice[] {
     return this.jsonData;
+  }
+
+  filterPrices(
+    streetName: string,
+    region: string,
+    state: string,
+    city: string,
+  ) {
+    return this.jsonData.filter((price) => {
+      return (
+        (!streetName ||
+          price.streetName?.toLowerCase().includes(streetName.toLowerCase())) &&
+        (!region || price.region?.toLowerCase() === region.toLowerCase()) &&
+        (!state || price.state?.toLowerCase() === state.toLowerCase()) &&
+        (!city || price.city?.toLowerCase() === city.toLowerCase())
+      );
+    });
   }
 }

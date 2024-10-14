@@ -6,16 +6,17 @@ import {
   HttpStatus,
   Res,
   Get,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FuelService } from './fuel.service';
+import { FuelPrice, FuelService } from './fuel.service';
 import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 
 @Controller('fuel')
 export class FuelController {
-  private jsonData: FuelService[] = undefined;
+  private jsonData: FuelPrice[] = undefined;
   constructor(private readonly fuelService: FuelService) {
     this.fuelService.loadData();
   }
@@ -86,5 +87,26 @@ export class FuelController {
       });
     }
     return res.status(HttpStatus.OK).json(this.fuelService.getJsonData());
+  }
+
+  @Get('search') 
+  searchFuelPrices(
+    @Query('streetName') streetName:string,
+    @Query('region') region:string,
+    @Query('state') state:string,
+    @Query('city') city:string,
+    @Res() res: Response
+  ) {
+    const jsonData = this.fuelService.getJsonData()
+
+    if(!jsonData) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        message: 'Nao foi achado nenhum registro.'
+      }) 
+    }
+
+    const filteredData = this.fuelService.filterPrices(streetName,region,state,city)
+
+return res.status(HttpStatus.OK).json(filteredData)
   }
 }
