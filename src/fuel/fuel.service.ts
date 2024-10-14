@@ -36,13 +36,13 @@ export class FuelService {
         .pipe(parse({ headers: true, delimiter: ';' }))
         .on('data', (row) => {
           csvData.push({
-            region: row['Região'],
-            state: row['Estado'],
+            region: row['Regiao - Sigla'],
+            state: row['Estado - Sigla'],
             city: row['Municipio'],
             retailer: row['Revenda'],
-            cnpj: row['CNPJ'],
+            cnpj: row['CNPJ da Revenda'],
             streetName: row['Nome da Rua'],
-            streetNumber: row['Número da Rua'],
+            streetNumber: row['Numero Rua'],
             complement: row['Complemento'],
             neighborhood: row['Bairro'],
             postalCode: row['Cep'],
