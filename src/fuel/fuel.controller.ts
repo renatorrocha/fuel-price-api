@@ -9,10 +9,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FuelPrice, FuelService } from './fuel.service';
+import { FuelPrice, FuelService, Product, Region } from './fuel.service';
 import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('fuel')
 export class FuelController {
@@ -89,24 +90,32 @@ export class FuelController {
     return res.status(HttpStatus.OK).json(this.fuelService.getJsonData());
   }
 
-  @Get('search') 
+  @Get('search')
+  @ApiQuery({
+    name: 'region',
+    enum: Region,
+    enumName: 'Region',
+  })
+  @ApiQuery({
+    name: 'product',
+    enum: Product,
+    enumName: 'Product',
+  })
   searchFuelPrices(
-    @Query('streetName') streetName:string,
-    @Query('region') region:string,
-    @Query('state') state:string,
-    @Query('city') city:string,
-    @Res() res: Response
+    @Query('region') region: Region,
+    @Query('product') product: Product,
+    @Res() res: Response,
   ) {
-    const jsonData = this.fuelService.getJsonData()
+    const jsonData = this.fuelService.getJsonData();
 
-    if(!jsonData) {
+    if (!jsonData) {
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: 'Nao foi achado nenhum registro.'
-      }) 
+        message: 'Nao foi achado nenhum registro.',
+      });
     }
 
-    const filteredData = this.fuelService.filterPrices(streetName,region,state,city)
+    const filteredData = this.fuelService.filterPrices(region, product);
 
-return res.status(HttpStatus.OK).json(filteredData)
+    return res.status(HttpStatus.OK).json(filteredData);
   }
 }

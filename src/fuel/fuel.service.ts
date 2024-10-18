@@ -5,22 +5,22 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 export interface FuelPrice {
-  streetName: string;
   region: string;
-  state: string;
-  city: string;
-  retailer: string;
-  cnpj: string;
-  streetNumber: string;
-  complement: string;
-  neighborhood: string;
-  postalCode: string;
   product: string;
-  collectionDate: string;
   salePrice: string;
-  purchasePrice: string;
   unit: string;
-  brand: string;
+  // streetName: string;
+  // state: string;
+  // city: string;
+  // retailer: string;
+  // cnpj: string;
+  // streetNumber: string;
+  // complement: string;
+  // neighborhood: string;
+  // postalCode: string;
+  // collectionDate: string;
+  // purchasePrice: string;
+  // brand: string;
 }
 
 @Injectable()
@@ -37,21 +37,21 @@ export class FuelService {
         .on('data', (row) => {
           csvData.push({
             region: row['Regiao - Sigla'],
-            state: row['Estado - Sigla'],
-            city: row['Municipio'],
-            retailer: row['Revenda'],
-            cnpj: row['CNPJ da Revenda'],
-            streetName: row['Nome da Rua'],
-            streetNumber: row['Numero Rua'],
-            complement: row['Complemento'],
-            neighborhood: row['Bairro'],
-            postalCode: row['Cep'],
             product: row['Produto'],
-            collectionDate: row['Data da Coleta'],
             salePrice: row['Valor de Venda'],
-            purchasePrice: row['Valor de Compra'],
             unit: row['Unidade de Medida'],
-            brand: row['Bandeira'],
+            // state: row['Estado - Sigla'],
+            // city: row['Municipio'],
+            // retailer: row['Revenda'],
+            // cnpj: row['CNPJ da Revenda'],
+            // streetName: row['Nome da Rua'],
+            // streetNumber: row['Numero Rua'],
+            // complement: row['Complemento'],
+            // neighborhood: row['Bairro'],
+            // postalCode: row['Cep'],
+            // collectionDate: row['Data da Coleta'],
+            // purchasePrice: row['Valor de Compra'],
+            // brand: row['Bandeira'],
           });
         })
         .on('end', () => resolve(csvData))
@@ -85,20 +85,24 @@ export class FuelService {
     return this.jsonData;
   }
 
-  filterPrices(
-    streetName: string,
-    region: string,
-    state: string,
-    city: string,
-  ) {
+  filterPrices(region: Region, product: Product) {
     return this.jsonData.filter((price) => {
-      return (
-        (!streetName ||
-          price.streetName?.toLowerCase().includes(streetName.toLowerCase())) &&
-        (!region || price.region?.toLowerCase() === region.toLowerCase()) &&
-        (!state || price.state?.toLowerCase() === state.toLowerCase()) &&
-        (!city || price.city?.toLowerCase() === city.toLowerCase())
-      );
+      return !region || price.region?.toLowerCase() === region.toLowerCase();
     });
   }
+}
+
+export enum Region {
+  CO = 'CO',
+  N = 'N',
+  NE = 'NE',
+  S = 'S',
+  SE = 'SE',
+  NO = 'NO',
+}
+
+export enum Product {
+  ADDITIVATED_GASOLINE = 'ADDITIVATED GASOLINE',
+  GASOLINE = 'GASOLINE',
+  ETHANOL = 'ETHANOL',
 }
