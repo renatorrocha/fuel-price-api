@@ -87,7 +87,10 @@ export class FuelService {
 
   filterPrices(region: Region, product: Product) {
     return this.jsonData.filter((price) => {
-      return !region || price.region?.toLowerCase() === region.toLowerCase();
+      return (
+        (!region || price.region?.toLowerCase() === region.toLowerCase()) &&
+        (!product || price.product?.toLowerCase() === product.toLowerCase())
+      );
     });
   }
 }
@@ -98,11 +101,10 @@ export enum Region {
   NE = 'NE',
   S = 'S',
   SE = 'SE',
-  NO = 'NO',
 }
 
 export enum Product {
-  ADDITIVATED_GASOLINE = 'ADDITIVATED GASOLINE',
-  GASOLINE = 'GASOLINE',
-  ETHANOL = 'ETHANOL',
+  ADDITIVATED_GASOLINE = 'GASOLINA ADITIVADA',
+  GASOLINE = 'GASOLINA',
+  ETHANOL = 'ETANOL',
 }
