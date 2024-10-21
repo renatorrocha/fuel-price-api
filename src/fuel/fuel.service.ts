@@ -86,12 +86,32 @@ export class FuelService {
   }
 
   filterPrices(region: Region, product: Product) {
-    return this.jsonData.filter((price) => {
+    // filter json by params
+    const filteredPrices = this.jsonData.filter((price) => {
       return (
         (!region || price.region?.toLowerCase() === region.toLowerCase()) &&
         (!product || price.product?.toLowerCase() === product.toLowerCase())
       );
     });
+
+    // extract values and parse to number
+    const salePrices = filteredPrices.map((price) => {
+      return parseFloat(price.salePrice.replace(',', '.'));
+    });
+
+    // calculate average price
+    const averageSalePrice =
+      salePrices.reduce((sum, price) => sum + price, 0) / salePrices.length;
+
+    // toFixed Average price
+    const FixedAverage = parseFloat(averageSalePrice.toFixed(2));
+
+    return {
+      averageSalePrice: FixedAverage || 0,
+      region: region,
+      unit: filteredPrices[0].unit,
+      totalPrices: filteredPrices.length,
+    };
   }
 }
 
