@@ -3,14 +3,15 @@ import { parse } from 'fast-csv';
 import { createReadStream } from 'fs';
 import * as path from 'path';
 import * as fs from 'fs';
+import { Product, Region, State } from './fuel-types';
 
 export interface FuelPrice {
   region: string;
   product: string;
   salePrice: string;
   unit: string;
+  state: string;
   // streetName: string;
-  // state: string;
   // city: string;
   // retailer: string;
   // cnpj: string;
@@ -40,7 +41,7 @@ export class FuelService {
             product: row['Produto'],
             salePrice: row['Valor de Venda'],
             unit: row['Unidade de Medida'],
-            // state: row['Estado - Sigla'],
+            state: row['Estado - Sigla'],
             // city: row['Municipio'],
             // retailer: row['Revenda'],
             // cnpj: row['CNPJ da Revenda'],
@@ -85,12 +86,12 @@ export class FuelService {
     return this.jsonData;
   }
 
-  filterPrices(region: Region, product: Product) {
-    // filter json by params
+  filterPrices(region: Region, product: Product, state: State) {
     const filteredPrices = this.jsonData.filter((price) => {
       return (
         (!region || price.region?.toLowerCase() === region.toLowerCase()) &&
-        (!product || price.product?.toLowerCase() === product.toLowerCase())
+        (!product || price.product?.toLowerCase() === product.toLowerCase()) &&
+        (!state || price.state?.toLowerCase() === state.toLowerCase())
       );
     });
 
@@ -109,22 +110,9 @@ export class FuelService {
     return {
       averageSalePrice: FixedAverage || 0,
       region: region,
+      state: state,
       unit: filteredPrices[0].unit,
       totalPrices: filteredPrices.length,
     };
   }
-}
-
-export enum Region {
-  CO = 'CO',
-  N = 'N',
-  NE = 'NE',
-  S = 'S',
-  SE = 'SE',
-}
-
-export enum Product {
-  ADDITIVATED_GASOLINE = 'GASOLINA ADITIVADA',
-  GASOLINE = 'GASOLINA',
-  ETHANOL = 'ETANOL',
 }

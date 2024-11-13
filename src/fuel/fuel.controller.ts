@@ -9,11 +9,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FuelPrice, FuelService, Product, Region } from './fuel.service';
+import { FuelPrice, FuelService } from './fuel.service';
 import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import { ApiQuery } from '@nestjs/swagger';
+import { Product, Region, State } from './fuel-types';
 
 @Controller('fuel')
 export class FuelController {
@@ -101,9 +102,15 @@ export class FuelController {
     enum: Product,
     enumName: 'Product',
   })
+  @ApiQuery({
+    name: 'state',
+    enum: State,
+    enumName: 'State',
+  })
   searchFuelPrices(
     @Query('region') region: Region,
     @Query('product') product: Product,
+    @Query('state') state: State,
     @Res() res: Response,
   ) {
     const jsonData = this.fuelService.getJsonData();
@@ -114,8 +121,8 @@ export class FuelController {
       });
     }
 
-    const filteredData = this.fuelService.filterPrices(region, product);
+    const result = this.fuelService.filterPrices(region, product, state);
 
-    return res.status(HttpStatus.OK).json(filteredData);
+    return res.status(HttpStatus.OK).json(result);
   }
 }
